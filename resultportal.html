@@ -76,6 +76,10 @@
         <div class="summary-item" id="percentage"></div>
         <div class="summary-item" id="grade"></div>
       </div>
+<!-- Note Section -->
+      <div class="mt-4 p-3 border border-yellow-400 bg-yellow-50 rounded-lg text-center text-yellow-700 text-sm font-medium">
+        ⚠️ Note: For any discrepancy in results, please contact the Examination Department.
+      </div>
     </div>
     <!-- Message -->
     <div id="message-container" class="message-v2"></div>
@@ -179,7 +183,7 @@
           displayResult(result.student);
           showMessage(getRandomQuote(), "success");
         } else {
-          showMessage(result.message || "No result found.", "error");
+          showMessage(result.message || "⚠️ No result found.", "error");
         }
       } catch (error) {
         console.error("Error:", error);
