@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Result Half-Yearly (2025-26)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+    body { font-family: 'Poppins', sans-serif; background-color: #f8fafc; }
+    .container-v2 { max-width: 850px; margin: 3rem auto; padding: 2.5rem; background-color: #ffffff; border-radius: 1.5rem; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.05); }
+    .header-v2 { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #004080; padding-bottom: 1.5rem; margin-bottom: 2rem; }
+    .school-name { color: #004080; font-size: 1.5rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; text-align: center; flex-grow: 1; }
+    .logo { width: 70px; height: 70px; object-fit: contain; }
+    .result-card-v2 { margin-top: 2rem; padding: 2rem; background-color: #f0f8ff; border-radius: 1rem; border: 2px solid #004080; border-left: 8px solid #004080; }
+    .result-row-v2 { display: grid; grid-template-columns: 1fr 1fr; padding: 0.75rem 0; border-bottom: 1px dashed #d1d5db; }
+    .result-row-v2:last-child { border-bottom: none; }
+    .result-label { font-weight: 500; color: #4a5568; }
+    .result-value { font-weight: 600; color: #1a202c; text-align: right; }
+    .student-info { margin-bottom: 1.5rem; padding: 1rem; border: 2px solid #e2e8f0; border-radius: 0.75rem; background-color: #f9fafb; }
+    .student-info h3 { font-size: 1.2rem; font-weight: 600; color: #004080; margin-bottom: 0.75rem; text-align: center; }
+    .summary-section { margin-top: 2rem; padding: 1rem; border-radius: 0.75rem; background: #ebf8ff; text-align: center; display: flex; justify-content: space-around; font-weight: 600; }
+    .summary-item { font-size: 1.1rem; color: #004080; }
+    .message-v2 { padding: 1rem; border-radius: 0.75rem; text-align: center; margin-top: 2rem; font-weight: 600; font-style: italic; }
+    .message-success { background-color: #f0fff4; color: #2f855a; border: 1px solid #2f855a; }
+    .message-error { background-color: #fff0f0; color: #c53030; border: 1px solid #c53030; }
+    .btn-blue { background-color: #004080; color: white; font-weight: 600; padding: 0.75rem; border-radius: 0.5rem; text-align: center; cursor: pointer; width: 100%; margin-top: 1.5rem; }
+    .btn-blue:hover { background-color: #0059b3; }
+  </style>
+</head>
+<body>
+  <div class="container-v2">
+    <div class="header-v2">
+      <img src="schoollogo.jpg" alt="School Logo" class="logo">
+      <div>
+        <h1 class="school-name">DAV Public School NPC TOWNSHIP, JAMTHAL</h1>
+        <p class="exam-period text-gray-600 text-center font-medium">Half-Yearly Examination Results (2025-26)</p>
+      </div>
+      <img src="cbselogo.png" alt="CBSE Logo" class="logo">
+    </div>
+
+    <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">Student Result Portal</h2>
+
+    <div class="input-group">
+      <select id="class-select" class="input-field-v2 w-full border px-3 py-2 rounded">
+        <option value="">Select Class</option>
+        <option value="Class 3rd">Class 3rd</option>
+        <option value="Class 4th">Class 4th</option>
+        <option value="Class 5th">Class 5th</option>
+        <option value="Class 6th">Class 6th</option>
+        <option value="Class 7th">Class 7th</option>
+        <option value="Class 8th">Class 8th</option>
+      </select>
+      <input type="number" id="rollno-input" placeholder="Enter Roll Number" class="input-field-v2 w-full mt-4 border px-3 py-2 rounded">
+      
+      <!-- 🔹 Added Password Input -->
+      <input type="password" id="password-input" placeholder="Enter Password" class="input-field-v2 w-full mt-4 border px-3 py-2 rounded">
+      
+      <button id="get-result-btn" class="btn-blue">View Result</button>
+    </div>
+
+    <div id="result-container" class="result-card-v2 hidden">
+      <h3 class="text-xl font-semibold text-gray-800 mb-4">Score Card</h3>
+      <div id="student-info" class="student-info"></div>
+      <div id="result-details"></div>
+      <div class="summary-section">
+        <div class="summary-item" id="total"></div>
+        <div class="summary-item" id="percentage"></div>
+        <div class="summary-item" id="grade"></div>
+      </div>
+    </div>
+
+    <div id="message-container" class="message-v2 hidden"></div>
+  </div>
+
+  <script>
+    const GOOGLE_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz7a9oEU1cIVKJTZQIMFoJYHWpIPYRVCe_GWfDCoKBAgOdYV3oWOtrWZxYU351PlqOL/exec";
+
+    const quotes = [
+      "Success is the sum of small efforts, repeated day in and day out.",
+      "Believe in yourself and all that you are!",
+      "Hard work beats talent when talent doesn’t work hard.",
+      "The future belongs to those who believe in the beauty of their dreams.",
+      "Every accomplishment starts with the decision to try.",
+      "Difficulties in life don’t come to destroy you, but to help you realize your hidden potential.",
+      "Push yourself, because no one else is going to do it for you.",
+      "Great things never come from comfort zones.",
+      "Dream it. Wish it. Do it.",
+      "The harder you work for something, the greater you’ll feel when you achieve it."
+    ];
+    const getRandomQuote = () => quotes[Math.floor(Math.random() * quotes.length)];
+
+    const classSelect = document.getElementById("class-select");
+    const rollNoInput = document.getElementById("rollno-input");
+    const passwordInput = document.getElementById("password-input"); // 🔹 New password field
+    const getResultBtn = document.getElementById("get-result-btn");
+    const resultContainer = document.getElementById("result-container");
+    const resultDetails = document.getElementById("result-details");
+    const messageContainer = document.getElementById("message-container");
+    const studentInfo = document.getElementById("student-info");
+
+    const showMessage = (message, type = "info") => {
+      messageContainer.textContent = message;
+      messageContainer.classList.remove("hidden", "message-error", "message-success");
+      if (type === "error") {
+        messageContainer.classList.add("message-error");
+      } else if (type === "success") {
+        messageContainer.classList.add("message-success");
+      }
+      messageContainer.classList.remove("hidden");
+    };
+
+    const displayResult = (student) => {
+      const percentage = parseFloat(student.percentage).toFixed(2);
+      studentInfo.innerHTML = `
+        <h3>Student Information</h3>
+        <div class="result-row-v2"><span class="result-label">Name:</span><span class="result-value">${student.name}</span></div>
+        <div class="result-row-v2"><span class="result-label">Roll No:</span><span class="result-value">${student.RollNo}</span></div>
+        <div class="result-row-v2"><span class="result-label">Class:</span><span class="result-value">${student.class}</span></div>
+      `;
+      resultDetails.innerHTML = `
+        <div class="result-row-v2"><span class="result-label">Hindi:</span><span class="result-value">${student.hindi}</span></div>
+        <div class="result-row-v2"><span class="result-label">English:</span><span class="result-value">${student.english}</span></div>
+        <div class="result-row-v2"><span class="result-label">Maths:</span><span class="result-value">${student.maths}</span></div>
+        <div class="result-row-v2"><span class="result-label">Science:</span><span class="result-value">${student.science}</span></div>
+        <div class="result-row-v2"><span class="result-label">Social:</span><span class="result-value">${student.social}</span></div>
+        <div class="result-row-v2"><span class="result-label">Sanskrit:</span><span class="result-value">${student.sanskrit}</span></div>
+      `;
+      document.getElementById("total").innerText = "Total: " + student.total;
+      document.getElementById("percentage").innerText = "Percentage: " + percentage + "%";
+      document.getElementById("grade").innerText = "Grade: " + student.grade;
+      resultContainer.classList.remove("hidden");
+      if (percentage >= 80) {
+        confetti({ particleCount: 200, spread: 120, origin: { y: 0.6 } });
+      }
+    };
+
+    getResultBtn.addEventListener("click", async () => {
+      const selectedClass = classSelect.value;
+      const rollNo = rollNoInput.value;
+      const password = passwordInput.value;
+
+      resultContainer.classList.add("hidden");
+      messageContainer.classList.add("hidden");
+
+      if (!selectedClass || !rollNo || !password) {
+        showMessage("Please select class, enter roll number and password.", "error");
+        return;
+      }
+
+      try {
+        const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
+          method: "POST",
+          redirect: "follow",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({ class: selectedClass, rollNo: rollNo, password: password }) // 🔹 Send password too
+        });
+
+        const resultText = await response.text();
+        const result = JSON.parse(resultText);
+
+        if (result.status === "success" && result.student) {
+          displayResult(result.student);
+          showMessage(getRandomQuote(), "success");
+        } else {
+          showMessage(result.message || "No result found.", "error");
+        }
+      } catch (error) {
+        console.error("Error:", error);
+        showMessage("An error occurred. Please try again later.", "error");
+      }
+    });
+  </script>
+</body>
+</html>
