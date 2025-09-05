@@ -77,13 +77,11 @@
         <div class="summary-item" id="grade"></div>
       </div>
     </div>
-
     <!-- Message -->
     <div id="message-container" class="message-v2"></div>
-     <!-- Footer -->
+<!-- Footer -->
   <footer>© 2025 DAV Public School NTPC Township, Jamthal | Powered by IT Department</footer>
   </div>
-
   <script>
     const GOOGLE_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz7a9oEU1cIVKJTZQIMFoJYHWpIPYRVCe_GWfDCoKBAgOdYV3oWOtrWZxYU351PlqOL/exec";
 
@@ -115,30 +113,40 @@
     };
 
     const displayResult = (student) => {
-      const percentage = parseFloat(student.percentage).toFixed(2);
-      studentInfo.innerHTML = `
-        <h3>Student Information</h3>
-        <div class="result-row-v2"><span class="result-label">Name:</span><span class="result-value">${student.name}</span></div>
-        <div class="result-row-v2"><span class="result-label">Roll No:</span><span class="result-value">${student.RollNo}</span></div>
-        <div class="result-row-v2"><span class="result-label">Class:</span><span class="result-value">${student.class}</span></div>
-      `;
-      resultDetails.innerHTML = `
-        <div class="result-row-v2"><span class="result-label">Hindi:</span><span class="result-value">${student.hindi}</span></div>
-        <div class="result-row-v2"><span class="result-label">English:</span><span class="result-value">${student.english}</span></div>
-        <div class="result-row-v2"><span class="result-label">Maths:</span><span class="result-value">${student.maths}</span></div>
-        <div class="result-row-v2"><span class="result-label">Science:</span><span class="result-value">${student.science}</span></div>
-        <div class="result-row-v2"><span class="result-label">Social:</span><span class="result-value">${student.social}</span></div>
-        <div class="result-row-v2"><span class="result-label">Sanskrit:</span><span class="result-value">${student.sanskrit}</span></div>
-      `;
-      document.getElementById("total").innerText = "Total: " + student.total;
-      document.getElementById("percentage").innerText = "Percentage: " + percentage + "%";
-      document.getElementById("grade").innerText = "Grade: " + student.grade;
-      resultContainer.style.display = "block";
+  if (!student) {
+    showMessage("⚠️ No student data found.", "error");
+    return;
+  }
 
-      if (percentage >= 80) {
-        confetti({ particleCount: 200, spread: 120, origin: { y: 0.6 } });
-      }
-    };
+  const percentage = student.percentage ? parseFloat(student.percentage).toFixed(2) : "0";
+
+  studentInfo.innerHTML = `
+    <h3>Student Information</h3>
+    <div class="result-row-v2"><span class="result-label">Name:</span><span class="result-value">${student.name || "-"}</span></div>
+    <div class="result-row-v2"><span class="result-label">Roll No:</span><span class="result-value">${student.RollNo || "-"}</span></div>
+    <div class="result-row-v2"><span class="result-label">Class:</span><span class="result-value">${student.class || "-"}</span></div>
+  `;
+
+  resultDetails.innerHTML = `
+    <div class="result-row-v2"><span class="result-label">Hindi:</span><span class="result-value">${student.hindi || "-"}</span></div>
+    <div class="result-row-v2"><span class="result-label">English:</span><span class="result-value">${student.english || "-"}</span></div>
+    <div class="result-row-v2"><span class="result-label">Maths:</span><span class="result-value">${student.maths || "-"}</span></div>
+    <div class="result-row-v2"><span class="result-label">Science:</span><span class="result-value">${student.science || "-"}</span></div>
+    <div class="result-row-v2"><span class="result-label">Social:</span><span class="result-value">${student.social || "-"}</span></div>
+    <div class="result-row-v2"><span class="result-label">Sanskrit:</span><span class="result-value">${student.sanskrit || "-"}</span></div>
+  `;
+
+  document.getElementById("total").innerText = "Total: " + (student.total || "0");
+  document.getElementById("percentage").innerText = "Percentage: " + percentage + "%";
+  document.getElementById("grade").innerText = "Grade: " + (student.grade || "-");
+
+  resultContainer.style.display = "block";
+
+  if (percentage >= 80) {
+    confetti({ particleCount: 200, spread: 120, origin: { y: 0.6 } });
+  }
+};
+
 
     getResultBtn.addEventListener("click", async () => {
       const selectedClass = classSelect.value;
@@ -181,8 +189,4 @@
   </script>
 </body>
 </html>
-
-
-
-
 
